@@ -1,47 +1,44 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import Video from './video';
+import initialValue from './value.json';
 import './App.css';
 
 import { Editor } from 'slate-react';
 import { Value } from 'slate';
 
-const initialValue = Value.fromJSON({
-  document: {
-    nodes: [
-      {
-        object: 'block',
-        type: 'paragraph',
-        nodes: [
-          {
-            object: 'text',
-            leaves: [
-              {
-                text: 'A line of text in a paragraph.',
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-});
-
 class App extends Component {
-  // Set the initial value when the app is first constructed.
-  state = {
-    value: initialValue
-  };
+  /**
+   * Deserialize the raw initial value.
+   *
+   * @type {Object}
+   */
 
-  // On change, update the app's React state with the new editor value.
-  onChange = ({ value }) => {
-    this.setState({ value })
+  state = {
+    value: Value.fromJSON(initialValue),
   }
 
-  onKeyDown = (event, change) => {
-    if (event.key != '&') return
-    event.preventDefault()
-    change.insertText('and')
-    return true
+  /**
+   * Render a Slate node.
+   *
+   * @param {Object} props
+   * @return {Element}
+   */
+
+  renderNode = props => {
+    switch (props.node.type) {
+      case 'video':
+        return <Video {...props} />
+    }
+  }
+
+  /**
+   * On change.
+   *
+   * @param {Change} change
+   */
+
+  onChange = ({ value }) => {
+    this.setState({ value })
   }
 
   render() {
@@ -52,9 +49,10 @@ class App extends Component {
           <header>Header</header>
           <div id="main">
             <Editor
+              placeholder="Enter some text..."
               value={this.state.value}
               onChange={this.onChange}
-              onKeyDown={this.onKeyDown}
+              renderNode={this.renderNode}
               style = {{flex: 1}}
             />
             <nav>Nav</nav>
